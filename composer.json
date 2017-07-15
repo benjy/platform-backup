@@ -1,0 +1,11 @@
+{
+  "name": "platform/backup",
+  "require": {
+    "aws/aws-sdk-php": "^3.31",
+    "monolog/monolog": "^1.23",
+    "platformsh/config-reader": "^0.0.1"
+  },
+  "config": {
+    "preferred-install": "dist"
+  }
+}
