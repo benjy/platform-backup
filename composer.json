@@ -1,5 +1,5 @@
 {
-  "name": "platform/backup",
+  "name": "benjy/platform-backup",
   "require": {
     "aws/aws-sdk-php": "^3.31",
     "monolog/monolog": "^1.23",
