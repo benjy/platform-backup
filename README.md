@@ -1,7 +1,13 @@
 Automated backup script that pulls the database, compresses, and syncs to an
 S3 bucket. Designed for Platform.sh
 
-## SETUP
+## Install
+
+You can either clone this repo and use as its own project or you can require it as a dependency into your existing project.
+
+`composer require benjy/platform-backup`
+
+## Setup
 
 - composer install
 - Create IAM user with write access to a S3 bucket.
@@ -11,12 +17,12 @@ mounts:
     "/backups": "shared:files/backups"
 ```
 
-  - Add environmental variables in Platform.sh. Be sure to add the "env:" prefix.
+- Add environmental variables in Platform.sh. Be sure to add the "env:" prefix.
     - env:AWS_ACCESS_KEY_ID
     - env:AWS_SECRET_ACCESS_KEY
     - env:S3_BUCKET (The name of the bucket you created)
     - env:LOGGLY_TOKEN (Get from loggly > source setup > tokens)
-  - Add composer install to .platform.app.yaml
+- Add composer install to .platform.app.yaml
 ```
 hooks:
     build: |
@@ -31,6 +37,8 @@ db_backup:
     spec: "0 0 * * *"
     cmd: "php ./jobs/db_backup.php"
 ```
+
+Note, you might have to update the cmd to point to a different location depending on how you installed.
 
 #### Credits
 
