@@ -22,6 +22,7 @@ mounts:
     - env:AWS_SECRET_ACCESS_KEY
     - env:S3_BUCKET (The name of the bucket you created)
     - env:LOGGLY_TOKEN (Get from loggly > source setup > tokens)
+    - env:AWS_REGION (Optional, defaults to us-east-1)
 - Add composer install to .platform.app.yaml
 ```
 hooks:

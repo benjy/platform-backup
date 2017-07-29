@@ -34,7 +34,7 @@ if ($psh->isAvailable()) {
 
     $s3 = new Aws\S3\S3Client([
       'version' => 'latest',
-      'region' => 'us-east-1',
+      'region' => getenv('AWS_REGION') ?: 'us-east-1',
       'credentials' => [
         'key' => getenv('AWS_ACCESS_KEY_ID'),
         'secret' => getenv('AWS_SECRET_ACCESS_KEY'),
