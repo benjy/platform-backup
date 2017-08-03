@@ -8,6 +8,7 @@ foreach (array(__DIR__ . '/vendor/autoload.php', __DIR__ . '/../vendor/autoload.
   }
 }
 
+use Monolog\Handler\StreamHandler;
 use Monolog\Logger;
 use Monolog\Handler\LogglyHandler;
 
@@ -21,6 +22,8 @@ $branchAndProject = getenv('PLATFORM_APPLICATION_NAME') . ' > ' . $fixedBranch;
 
 $logger = new Logger('backup_logger');
 $logger->pushHandler(new LogglyHandler(LOGGLY_TOKEN . '/tag/backup_logger', Logger::INFO));
+$logger->pushHandler(new StreamHandler('php://stdout'));
+
 $psh = new Platformsh\ConfigReader\Config();
 
 if ($psh->isAvailable()) {
