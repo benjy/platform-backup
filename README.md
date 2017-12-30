@@ -23,6 +23,9 @@ mounts:
     - env:S3_BUCKET (The name of the bucket you created)
     - env:LOGGLY_TOKEN (Get from loggly > source setup > tokens)
     - env:AWS_REGION (Optional, defaults to us-east-1)
+    - env:PUBLIC_FILES_DIRECTORY (optional: If added use, full path [e.g. /app/app/sites/default/files])
+    - env:PRIVATE_FILES_DIRECTORY (optional: If added use, full path [e.g. /app/private])
+
 - Add composer install to .platform.app.yaml
 ```
 hooks:

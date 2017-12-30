@@ -1,7 +1,7 @@
 <?php
 
 // Support using this file as its own project or as composer requirement.
-foreach (array(__DIR__ . '/vendor/autoload.php', __DIR__ . '/../vendor/autoload.php', __DIR__ . '/../../autoload.php') as $file) {
+foreach ([__DIR__ . '/vendor/autoload.php', __DIR__ . '/../vendor/autoload.php', __DIR__ . '/../../autoload.php'] as $file) {
   if (file_exists($file)) {
     require_once $file;
     break;
@@ -28,6 +28,15 @@ $logger->pushHandler(new StreamHandler('php://stdout'));
 $psh = new Platformsh\ConfigReader\Config();
 
 if ($psh->isAvailable()) {
+  $s3 = new Aws\S3\S3Client([
+    'version' => 'latest',
+    'region' => getenv('AWS_REGION') ?: 'us-east-1',
+    'credentials' => [
+      'key' => getenv('AWS_ACCESS_KEY_ID'),
+      'secret' => getenv('AWS_SECRET_ACCESS_KEY'),
+    ],
+  ]);
+
   try {
     $sql_filename = date('Y-m-d_H:i:s') . '.gz';
     $backup_path = $home_dir . "/backups/";
@@ -35,15 +44,6 @@ if ($psh->isAvailable()) {
     $database = $psh->relationships['database'][0];
     putenv("MYSQL_PWD={$database['password']}");
     exec("mysqldump --opt -h {$database['host']} -u {$database['username']} {$database['path']} | gzip > $backup_path$sql_filename");
-
-    $s3 = new Aws\S3\S3Client([
-      'version' => 'latest',
-      'region' => getenv('AWS_REGION') ?: 'us-east-1',
-      'credentials' => [
-        'key' => getenv('AWS_ACCESS_KEY_ID'),
-        'secret' => getenv('AWS_SECRET_ACCESS_KEY'),
-      ],
-    ]);
 
     $s3->putObject([
       'Bucket' => S3_BUCKET,
@@ -64,6 +64,28 @@ if ($psh->isAvailable()) {
   }
   catch (Exception $e) {
     $logger->error("Database backup error for $branchAndProject: " . $e->getMessage());
+  }
+
+  if ($privateFilesDir = getenv('PRIVATE_FILES_DIRECTORY')) {
+    try {
+      $s3->uploadDirectory($privateFilesDir, S3_BUCKET . "/$baseDirectory/files-private");
+
+      $logger->addInfo("Successfully backed up files $privateFilesDir for $branchAndProject");
+    }
+    catch (Exception $e) {
+      $logger->addError("Files backup error for $branchAndProject ($privateFilesDir): " . $e->getMessage());
+    }
+  }
+
+  if ($publicFilesDir = getenv('PUBLIC_FILES_DIRECTORY')) {
+    try {
+      $s3->uploadDirectory($publicFilesDir, S3_BUCKET . "/$baseDirectory/files-public");
+
+      $logger->addInfo("Successfully backed up files $publicFilesDir for $branchAndProject");
+    }
+    catch (Exception $e) {
+      $logger->addError("Files backup error for $branchAndProject ($publicFilesDir): " . $e->getMessage());
+    }
   }
 
 }
