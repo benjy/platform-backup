@@ -16,6 +16,7 @@ define('S3_BUCKET', getenv('S3_BUCKET'));
 define('LOGGLY_TOKEN', getenv('LOGGLY_TOKEN'));
 
 $home_dir = getenv('PLATFORM_DIR');
+$keep_n_days = getenv('BACKUP_KEEP_N_DAYS') ?: 5;
 $fixedBranch = strtolower(preg_replace('/[\W\s\/]+/', '-', getenv('PLATFORM_BRANCH')));
 $projectName = getenv('BACKUP_PROJECT_NAME') ?: getenv('PLATFORM_APPLICATION_NAME');
 $baseDirectory = "platform/$projectName/$fixedBranch";
@@ -51,11 +52,11 @@ if ($psh->isAvailable()) {
       'Body' => fopen($backup_path . $sql_filename, 'r'),
     ]);
 
-    // Remove local backup files that are older than 5 days
+    // Remove local backup files that are older than $keep_n_days.
     $fileSystemIterator = new FilesystemIterator($backup_path);
     $now = time();
     foreach ($fileSystemIterator as $file) {
-      if ($now - $file->getCTime() >= 60 * 60 * 24 * 5) {
+      if ($now - $file->getCTime() >= 60 * 60 * 24 * $keep_n_days) {
         unlink($backup_path . $file->getFilename());
       }
     }
